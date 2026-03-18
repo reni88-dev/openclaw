@@ -33,8 +33,8 @@ RUN mkdir -p /root/.openclaw/rclone /root/.config \
     && ln -s /root/.openclaw/rclone /root/.config/rclone \
     && touch /root/.openclaw/rclone/rclone.conf
 
-# Install OpenClaw and Gemini CLI globally
-RUN npm install -g openclaw@2026.3.13
+# Install OpenClaw dan PM2 secara global
+RUN npm install -g openclaw@2026.3.13 pm2
 
 # Create working directories
 RUN mkdir -p /root/.openclaw /root/.openclaw/workspace
@@ -44,17 +44,15 @@ VOLUME ["/root/.openclaw"]
 
 EXPOSE 18789
 
-# Try to start gateway (will work if onboarding is done, silently fail if not)
-# Guard: skip if port 18789 already bound (gateway already running)
-# Container stays alive either way — run "openclaw onboard" if first time
+# Menjalankan PM2 sebagai process manager, dilanjutkan dengan tail untuk menahan container
 CMD ["bash", "-c", "\
   echo '🦞 OpenClaw container started.'; \
   if ss -tlnp 2>/dev/null | grep -q ':18789'; then \
     echo '⚠️  Gateway already running on port 18789, skipping...'; \
   else \
-    openclaw gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1 & \
-    echo $! > /run/openclaw-gateway.pid; \
-    echo '🦞 Gateway launched (PID: '\"$!\"', logs: /root/.openclaw/gateway.log)'; \
+    pm2 start openclaw --name gateway -- gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1; \
+    echo '🦞 Gateway launched via PM2 (logs: /root/.openclaw/gateway.log)'; \
   fi; \
   echo '💡 First time? Run: openclaw onboard'; \
+  echo '🔄 To restart bot later, run: pm2 restart gateway'; \
   tail -f /dev/null"]
