@@ -37,13 +37,13 @@ VOLUME ["/root/.openclaw"]
 
 EXPOSE 18789
 
-# Gunakan PM2 native dengan interpreter Node
+# Gunakan PM2 dengan interpreter none agar argument CLI tidak bergeser
 CMD ["bash", "-c", "\
   echo '🦞 OpenClaw container started.'; \
   if ss -tlnp 2>/dev/null | grep -q ':18789'; then \
     echo '⚠️  Gateway already running on port 18789, skipping...'; \
   else \
-    pm2 start $(which openclaw) --name gateway --cwd /root --interpreter node -- gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1; \
+    pm2 start $(which openclaw) --name gateway --interpreter none --cwd /root -- gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1; \
     echo '🦞 Gateway launched natively via PM2 (logs: /root/.openclaw/gateway.log)'; \
   fi; \
   echo '💡 First time? Run: openclaw onboard'; \
