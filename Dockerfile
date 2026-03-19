@@ -32,22 +32,19 @@ RUN npm install -g openclaw@2026.3.13 pm2
 # Create working directories
 RUN mkdir -p /root/.openclaw /root/.openclaw/workspace
 
-# Buat Bash Script untuk eksekusi yang aman oleh PM2
-RUN echo 'openclaw gateway --port 18789' > /root/start.sh && chmod +x /root/start.sh
-
 # Persistent data
 VOLUME ["/root/.openclaw"]
 
 EXPOSE 18789
 
-# Gunakan PM2 untuk mengeksekusi bash script
+# Gunakan PM2 native dengan interpreter Node
 CMD ["bash", "-c", "\
   echo '🦞 OpenClaw container started.'; \
   if ss -tlnp 2>/dev/null | grep -q ':18789'; then \
     echo '⚠️  Gateway already running on port 18789, skipping...'; \
   else \
-    pm2 start /root/start.sh --name gateway >> /root/.openclaw/gateway.log 2>&1; \
-    echo '🦞 Gateway launched via PM2 Script (logs: /root/.openclaw/gateway.log)'; \
+    pm2 start $(which openclaw) --name gateway --cwd /root --interpreter node -- gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1; \
+    echo '🦞 Gateway launched natively via PM2 (logs: /root/.openclaw/gateway.log)'; \
   fi; \
   echo '💡 First time? Run: openclaw onboard'; \
   echo '🔄 To restart bot later, run: pm2 restart gateway'; \
