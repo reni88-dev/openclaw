@@ -29,7 +29,9 @@ Setelah deploy, masuk ke terminal dan jalankan `openclaw onboard` untuk setup aw
    ```bash
    openclaw onboard
    ```
-3. Ikuti instruksi onboarding (setup Telegram bot, dll)
+3. Ikuti instruksi onboarding (setup Telegram bot, dll).
+   > **TIPS saat ditanya Model Provider:** 
+   > Anda bisa memilih **Skip** (karena Gemini akan di-setup manual di Langkah 4), atau pilih provider lain (misal OpenRouter/DeepSeek) jika ingin menjadikannya sebagai *fallback* cadangan.
 4. Sampai muncul pesan:
    ```
    Onboarding complete. Use the dashboard link above to control OpenClaw.

@@ -22,7 +22,7 @@ EOF
 
   # Start proxy in background
   cd /opt/gemini-proxy
-  python3 gemini-proxy.py >> /root/.openclaw/gemini-proxy.log 2>&1 &
+  python3 proxy.py >> /root/.openclaw/gemini-proxy.log 2>&1 &
   PROXY_PID=$!
   echo "🔄 Gemini Proxy starting (PID: $PROXY_PID)..."
 
