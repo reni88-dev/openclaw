@@ -197,6 +197,28 @@ openclaw restart → Bot Telegram aktif dengan Gemini 🎉
 
 ---
 
+## Menambahkan Model Lain (Multi-Provider)
+
+Anda tetap bisa menambahkan model atau provider AI lain (seperti OpenAI, Anthropic, Ollama, dll) dengan aman melalui terminal container:
+
+```bash
+openclaw configure
+# atau
+openclaw onboard
+```
+
+**Kenapa Aman?**
+OpenClaw menggunakan sistem *config merging*. Artinya, provider `gemini` custom yang berjalan via proxy lokal **tidak akan terhapus atau tertimpa**. 
+
+**Catatan Penting:**
+Saat Anda setup model baru, OpenClaw biasanya akan mengatur model tersebut menjadi *primary model*. Jika Anda ingin Gemini tetap menjadi model utama dan model baru tersebut hanya sebagai *fallback*, jalankan kembali perintah ini:
+
+```bash
+openclaw models set gemini/models/gemini-2.5-flash
+```
+
+---
+
 ## Tools yang Tersedia di Container
 
 | Tool | Kegunaan |
