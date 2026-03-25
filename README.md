@@ -99,9 +99,9 @@ Set `defaults.model.primary`:
 
 #### 4b. Update `auth-profiles.json` untuk setiap agent
 
-```bash
-GEMINI_KEY="AIzaSy..."  # ganti dengan key Anda
+> `GEMINI_API_KEY` sudah tersedia di environment container (dari EasyPanel), jadi tinggal pakai langsung:
 
+```bash
 for agent in agent1 agent2 agent3 agent4 main; do
   python3 -c "
 import json, os
@@ -112,8 +112,8 @@ except:
     d = {'profiles': {}}
 d['profiles']['google:default'] = {
     'provider': 'google',
-    'key': '$GEMINI_KEY',
-    'Authorization': 'Bearer $GEMINI_KEY'
+    'key': '$GEMINI_API_KEY',
+    'Authorization': 'Bearer $GEMINI_API_KEY'
 }
 json.dump(d, open(path, 'w'), indent=2)
 print(f'Updated {path}')
