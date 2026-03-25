@@ -1,11 +1,11 @@
 # =============================================================================
-# OpenClaw — Simple VPS-Style Container for ARM64 (EasyPanel)
+# OpenClaw — Simple VPS-Style Container for ARM64 (EasyPanel) + Gemini Proxy
 # =============================================================================
-# Konsep: Container ini seperti VPS kosong yang sudah terinstall openclaw.
-# Tinggal exec ke terminal dan jalankan: openclaw onboard
+# Konsep: Container ini seperti VPS kosong yang sudah terinstall openclaw
+#         + Gemini proxy untuk pakai Google Gemini sebagai model utama.
 #
 # Build:  docker build --platform linux/arm64 -t openclaw:arm64 .
-# Run:    docker run -d --name openclaw -p 18789:18789 openclaw:arm64
+# Run:    docker run -d --name openclaw -e GEMINI_API_KEY=AIzaSy... -p 18789:18789 openclaw:arm64
 # Exec:   docker exec -it openclaw bash
 # =============================================================================
 
@@ -21,6 +21,7 @@ RUN apt-get update && \
       htop \
       procps \
       rclone \
+      python3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,28 +34,22 @@ RUN mkdir -p /root/.openclaw/rclone /root/.config \
     && ln -s /root/.openclaw/rclone /root/.config/rclone \
     && touch /root/.openclaw/rclone/rclone.conf
 
-# Install OpenClaw and Gemini CLI globally
+# Install OpenClaw globally
 RUN npm install -g openclaw@2026.3.13
+
+# Install Gemini Proxy
+RUN git clone https://github.com/Aris-Setyawan/gemini-proxy.git /opt/gemini-proxy
 
 # Create working directories
 RUN mkdir -p /root/.openclaw /root/.openclaw/workspace
+
+# Entrypoint script — starts proxy + gateway
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Persistent data
 VOLUME ["/root/.openclaw"]
 
 EXPOSE 18789
 
-# Try to start gateway (will work if onboarding is done, silently fail if not)
-# Guard: skip if port 18789 already bound (gateway already running)
-# Container stays alive either way — run "openclaw onboard" if first time
-CMD ["bash", "-c", "\
-  echo '🦞 OpenClaw container started.'; \
-  if ss -tlnp 2>/dev/null | grep -q ':18789'; then \
-    echo '⚠️  Gateway already running on port 18789, skipping...'; \
-  else \
-    openclaw gateway --port 18789 >> /root/.openclaw/gateway.log 2>&1 & \
-    echo $! > /run/openclaw-gateway.pid; \
-    echo '🦞 Gateway launched (PID: '\"$!\"', logs: /root/.openclaw/gateway.log)'; \
-  fi; \
-  echo '💡 First time? Run: openclaw onboard'; \
-  tail -f /dev/null"]
+CMD ["/usr/local/bin/start.sh"]

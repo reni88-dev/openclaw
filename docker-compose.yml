@@ -1,8 +1,8 @@
 # =============================================================================
-# OpenClaw — Simple VPS-Style Container for EasyPanel (ARM64)
+# OpenClaw — Simple VPS-Style Container for EasyPanel (ARM64) + Gemini Proxy
 # =============================================================================
 # Usage:
-#   docker compose -f docker-compose.easypanel.yml up -d
+#   docker compose up -d
 #   docker exec -it openclaw bash
 #   openclaw onboard
 # =============================================================================
@@ -11,9 +11,11 @@ services:
   openclaw:
     build:
       context: .
-      dockerfile: Dockerfile.arm64
+      dockerfile: Dockerfile
     image: openclaw:arm64
     container_name: openclaw
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     volumes:
       - openclaw-data:/root/.openclaw
     ports:
