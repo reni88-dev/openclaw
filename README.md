@@ -15,7 +15,10 @@ Setelah deploy, masuk ke terminal dan jalankan `openclaw onboard` untuk setup aw
 1. Buka EasyPanel → **Create Service** → **App** → **GitHub**
 2. Arahkan ke repo ini (branch `with-gemini-proxy`)
 3. **Dockerfile Path**: `Dockerfile`
-4. **Environment Variable**: Tambahkan `GEMINI_API_KEY` = `AIzaSy...` (dari [Google AI Studio](https://aistudio.google.com/app/apikey))
+4. **Environment Variable** (pilih salah satu):
+   - `GEMINI_API_KEY` = `AIzaSy...` — satu key saja
+   - `GEMINI_API_KEYS` = `AIzaSy_KEY1,AIzaSy_KEY2,AIzaSy_KEY3` — multi-key dengan auto-rotation (lihat section [Multi-Key Rotation](#multi-key-rotation-anti-rate-limit))
+   - Dapatkan key di [Google AI Studio](https://aistudio.google.com/app/apikey)
 5. **Volume**: mount `/root/.openclaw` → agar data persistent (tidak hilang saat restart/rebuild)
 6. **Port**: ⚠️ **Tidak wajib** — hanya perlu jika ingin akses Control UI via web
    - Jika butuh: Published `18789`, Target `18789`, Protocol `TCP`
@@ -218,6 +221,28 @@ Saat Anda setup model baru, OpenClaw biasanya akan mengatur model tersebut menja
 ```bash
 openclaw models set gemini/models/gemini-2.5-flash
 ```
+
+---
+
+## Multi-Key Rotation (Anti Rate-Limit)
+
+Gemini API punya rate limit per key. Dengan fitur ini, Anda bisa mendaftarkan **beberapa API key sekaligus** — jika satu key kena limit, OpenClaw otomatis pindah ke key berikutnya.
+
+### Cara Setup
+
+1. Buat beberapa API key di [Google AI Studio](https://aistudio.google.com/app/apikey) (bisa dari akun Google yang berbeda)
+2. Di EasyPanel, set environment variable:
+   ```
+   GEMINI_API_KEYS=AIzaSy_KEY1,AIzaSy_KEY2,AIzaSy_KEY3
+   ```
+3. **Deploy/Restart** container — selesai!
+
+`start.sh` akan otomatis:
+- Menulis semua key ke `auth-profiles.json` setiap agent (`google:key1`, `google:key2`, dst)
+- Set `auth.order.google` di `openclaw.json` agar OpenClaw tahu urutan rotasi
+- Proxy tetap menggunakan key pertama sebagai default
+
+> **Catatan:** Jika hanya punya satu key, cukup pakai `GEMINI_API_KEY` seperti biasa. Jika `GEMINI_API_KEYS` di-set, maka `GEMINI_API_KEY` diabaikan.
 
 ---
 

@@ -16,6 +16,7 @@ services:
     container_name: openclaw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_API_KEYS=${GEMINI_API_KEYS:-}
     volumes:
       - openclaw-data:/root/.openclaw
     ports:
